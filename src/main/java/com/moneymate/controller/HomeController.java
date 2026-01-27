@@ -89,8 +89,13 @@ public class HomeController {
         // 저축 데이터
         for (Saving saving : savings) {
             int day = saving.getSavedDate().getDayOfMonth();
-            dayDataMap.putIfAbsent(day, new DayData(day));
+            LocalDate savingDate = saving.getSavedDate();
+            DayOfWeek dayOfWeek = savingDate.getDayOfWeek();
+            dayDataMap.putIfAbsent(day, new DayData(day, dayOfWeek));
             DayData dayData = dayDataMap.get(day);
+            if (dayData.getDayOfWeek() == null) {
+                dayData.setDayOfWeek(dayOfWeek);
+            }
             DaySaving daySaving = new DaySaving();
             daySaving.setId(saving.getId());
             daySaving.setAmount(saving.getAmount());
@@ -103,8 +108,13 @@ public class HomeController {
         // 지출 데이터
         for (Expense expense : expenses) {
             int day = expense.getExpenseDate().getDayOfMonth();
-            dayDataMap.putIfAbsent(day, new DayData(day));
+            LocalDate expenseDate = expense.getExpenseDate();
+            DayOfWeek dayOfWeek = expenseDate.getDayOfWeek();
+            dayDataMap.putIfAbsent(day, new DayData(day, dayOfWeek));
             DayData dayData = dayDataMap.get(day);
+            if (dayData.getDayOfWeek() == null) {
+                dayData.setDayOfWeek(dayOfWeek);
+            }
             DayExpense dayExpense = new DayExpense();
             dayExpense.setId(expense.getId());
             dayExpense.setAmount(expense.getAmount());
@@ -118,8 +128,13 @@ public class HomeController {
         // 메모 데이터
         for (Memo memo : memos) {
             int day = memo.getMemoDate().getDayOfMonth();
-            dayDataMap.putIfAbsent(day, new DayData(day));
+            LocalDate memoDate = memo.getMemoDate();
+            DayOfWeek dayOfWeek = memoDate.getDayOfWeek();
+            dayDataMap.putIfAbsent(day, new DayData(day, dayOfWeek));
             DayData dayData = dayDataMap.get(day);
+            if (dayData.getDayOfWeek() == null) {
+                dayData.setDayOfWeek(dayOfWeek);
+            }
             DayMemo dayMemo = new DayMemo();
             dayMemo.setId(memo.getId());
             dayMemo.setContent(memo.getContent());
@@ -130,7 +145,10 @@ public class HomeController {
         
         // 캘린더에 날짜 데이터 추가
         for (int day = 1; day <= daysInMonth; day++) {
-            DayData dayData = dayDataMap.getOrDefault(day, new DayData(day));
+            LocalDate currentDate = yearMonth.atDay(day);
+            DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
+            DayData dayData = dayDataMap.getOrDefault(day, new DayData(day, dayOfWeek));
+            dayData.setDayOfWeek(dayOfWeek);
             calendar.add(dayData);
         }
         
