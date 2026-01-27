@@ -30,7 +30,7 @@
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 2.5em;
         }
 
@@ -80,7 +80,7 @@
         .summary-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             text-align: center;
         }
@@ -91,7 +91,7 @@
         }
 
         .summary-card .amount {
-            font-size: 2em;
+            font-size: 1.4em;
             font-weight: bold;
         }
 
@@ -152,7 +152,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: background 0.3s;
         }
 
@@ -209,6 +209,107 @@
             min-height: 150px;
             resize: vertical;
         }
+
+        /* 캘린더 스타일 */
+        .calendar {
+            margin-bottom: 40px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            position: relative;
+        }
+
+        .calendar-day.empty {
+            background: #f8f9fa;
+            border: none;
+        }
+
+        .calendar-day-number {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .calendar-day-content {
+            font-size: 0.85em;
+        }
+
+        .day-saving {
+            color: #28a745;
+            margin: 2px 0;
+        }
+
+        .day-expense {
+            color: #dc3545;
+            margin: 2px 0;
+        }
+
+        .day-memo {
+            color: #ffc107;
+            margin: 2px 0;
+            font-style: italic;
+        }
+
+        .day-summary {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid #eee;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .memo-list {
+            margin-top: 20px;
+        }
+
+        .memo-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .memo-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .memo-item-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .memo-item-content {
+            color: #333;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
@@ -237,6 +338,45 @@
             <div class="summary-card balance">
                 <h3>잔액</h3>
                 <div class="amount" th:text="${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')} + '원'">0원</div>
+            </div>
+        </div>
+
+        <!-- 캘린더 섹션 -->
+        <div class="section calendar">
+            <h2>📅 캘린더</h2>
+            <div class="calendar-grid">
+                <div class="calendar-day-header">월</div>
+                <div class="calendar-day-header">화</div>
+                <div class="calendar-day-header">수</div>
+                <div class="calendar-day-header">목</div>
+                <div class="calendar-day-header">금</div>
+                <div class="calendar-day-header">토</div>
+                <div class="calendar-day-header">일</div>
+                
+                <div th:each="dayData : ${calendarData}" 
+                     th:class="${dayData == null ? 'calendar-day empty' : 'calendar-day'}">
+                    <div th:if="${dayData != null}">
+                        <div class="calendar-day-number" th:text="${dayData.day}"></div>
+                        <div class="calendar-day-content">
+                            <div th:each="saving : ${dayData.savings}" class="day-saving">
+                                💵 <span th:text="${#numbers.formatDecimal(saving.amount, 0, 'COMMA', 0, 'POINT')}"></span>원
+                                <span th:if="${saving.description}" th:text="' - ' + ${saving.description}"></span>
+                            </div>
+                            <div th:each="expense : ${dayData.expenses}" class="day-expense">
+                                💸 <span th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 0, 'POINT')}"></span>원
+                                <span th:if="${expense.category}" th:text="'[' + ${expense.category} + ']'"></span>
+                                <span th:if="${expense.description}" th:text="' - ' + ${expense.description}"></span>
+                            </div>
+                            <div th:each="memo : ${dayData.memos}" class="day-memo">
+                                📝 <span th:text="${#strings.abbreviate(memo.content, 20)}"></span>
+                            </div>
+                            <div th:if="${dayData.totalSaving > 0 || dayData.totalExpense > 0}" class="day-summary">
+                                <div th:if="${dayData.totalSaving > 0}">저축: <span th:text="${#numbers.formatDecimal(dayData.totalSaving, 0, 'COMMA', 0, 'POINT')}"></span>원</div>
+                                <div th:if="${dayData.totalExpense > 0}">지출: <span th:text="${#numbers.formatDecimal(dayData.totalExpense, 0, 'COMMA', 0, 'POINT')}"></span>원</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -368,15 +508,34 @@
                     <input type="hidden" name="year" th:value="${year}">
                     <input type="hidden" name="month" th:value="${month}">
                     <div class="form-group">
-                        <label>이번 달 메모</label>
-                        <textarea name="content" placeholder="이번 달에 대한 메모를 작성하세요..." th:text="${memo?.content}"></textarea>
+                        <label>메모 작성</label>
+                        <textarea name="content" placeholder="메모를 작성하세요..." required></textarea>
                     </div>
                     <div class="form-group">
                         <label>날짜</label>
-                        <input type="date" name="memoDate" th:value="${memo?.memoDate != null ? #temporals.format(memo.memoDate, 'yyyy-MM-dd') : #temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                        <input type="date" name="memoDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
                     </div>
                     <button type="submit" class="btn">메모 저장</button>
                 </form>
+            </div>
+
+            <!-- 메모 목록 -->
+            <div class="memo-list" th:if="${!memos.isEmpty()}">
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333;">저장된 메모 목록</h3>
+                <div th:each="memo : ${memos}" class="memo-item">
+                    <div class="memo-item-header">
+                        <div class="memo-item-date" th:text="${#temporals.format(memo.memoDate, 'yyyy-MM-dd')} + ' ' + ${#temporals.format(memo.createdAt, 'HH:mm')}"></div>
+                        <form th:action="@{/memo/delete/{id}(id=${memo.id})}" method="post" style="display: inline;">
+                            <input type="hidden" name="year" th:value="${year}">
+                            <input type="hidden" name="month" th:value="${month}">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 14px;">삭제</button>
+                        </form>
+                    </div>
+                    <div class="memo-item-content" th:text="${memo.content}"></div>
+                </div>
+            </div>
+            <div class="empty-message" th:if="${memos.isEmpty()}">
+                저장된 메모가 없습니다.
             </div>
         </div>
     </div>
