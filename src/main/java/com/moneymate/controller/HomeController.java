@@ -59,9 +59,17 @@ public class HomeController {
         model.addAttribute("totalExpense", totalExpense != null ? totalExpense : 0L);
         model.addAttribute("memos", memos);
         model.addAttribute("calendarData", calendarData);
+        model.addAttribute("defaultDate", getDefaultInputDate(year, month));
         model.addAttribute("balance", (totalSaving != null ? totalSaving : 0L) - (totalExpense != null ? totalExpense : 0L));
 
         return "index";
+    }
+
+    // 날짜 입력칸 기본값: 보고 있는 달이 이번 달이면 오늘, 아니면 그 달의 1일
+    private LocalDate getDefaultInputDate(Integer year, Integer month) {
+        LocalDate today = LocalDate.now();
+        YearMonth viewing = YearMonth.of(year, month);
+        return viewing.equals(YearMonth.from(today)) ? today : viewing.atDay(1);
     }
 
     private List<DayData> buildCalendarData(Integer year, Integer month, 
