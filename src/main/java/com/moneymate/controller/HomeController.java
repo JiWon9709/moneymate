@@ -59,9 +59,17 @@ public class HomeController {
         model.addAttribute("totalExpense", totalExpense != null ? totalExpense : 0L);
         model.addAttribute("memos", memos);
         model.addAttribute("calendarData", calendarData);
+        model.addAttribute("defaultDate", getDefaultInputDate(year, month));
         model.addAttribute("balance", (totalSaving != null ? totalSaving : 0L) - (totalExpense != null ? totalExpense : 0L));
 
         return "index";
+    }
+
+    // 날짜 입력칸 기본값: 보고 있는 달이 이번 달이면 오늘, 아니면 그 달의 1일
+    private LocalDate getDefaultInputDate(Integer year, Integer month) {
+        LocalDate today = LocalDate.now();
+        YearMonth viewing = YearMonth.of(year, month);
+        return viewing.equals(YearMonth.from(today)) ? today : viewing.atDay(1);
     }
 
     private List<DayData> buildCalendarData(Integer year, Integer month, 
@@ -161,11 +169,17 @@ public class HomeController {
                             @RequestParam Integer year,
                             @RequestParam Integer month,
                             RedirectAttributes redirectAttributes) {
-        saving.setYear(year);
-        saving.setMonth(month);
+        // 년/월은 화면에서 선택한 달이 아니라 실제 저축 날짜 기준으로 설정
+        if (saving.getSavedDate() == null) {
+            saving.setSavedDate(LocalDate.now());
+        }
+        LocalDate savedDate = saving.getSavedDate();
+        saving.setYear(savedDate.getYear());
+        saving.setMonth(savedDate.getMonthValue());
         savingService.saveSaving(saving);
-        redirectAttributes.addAttribute("year", year);
-        redirectAttributes.addAttribute("month", month);
+        // 저장된 달로 이동
+        redirectAttributes.addAttribute("year", savedDate.getYear());
+        redirectAttributes.addAttribute("month", savedDate.getMonthValue());
         return "redirect:/";
     }
 
@@ -187,11 +201,17 @@ public class HomeController {
                             @RequestParam Integer year,
                             @RequestParam Integer month,
                             RedirectAttributes redirectAttributes) {
-        expense.setYear(year);
-        expense.setMonth(month);
+        // 년/월은 화면에서 선택한 달이 아니라 실제 지출 날짜 기준으로 설정
+        if (expense.getExpenseDate() == null) {
+            expense.setExpenseDate(LocalDate.now());
+        }
+        LocalDate expenseDate = expense.getExpenseDate();
+        expense.setYear(expenseDate.getYear());
+        expense.setMonth(expenseDate.getMonthValue());
         expenseService.saveExpense(expense);
-        redirectAttributes.addAttribute("year", year);
-        redirectAttributes.addAttribute("month", month);
+        // 저장된 달로 이동
+        redirectAttributes.addAttribute("year", expenseDate.getYear());
+        redirectAttributes.addAttribute("month", expenseDate.getMonthValue());
         return "redirect:/";
     }
 
@@ -213,11 +233,17 @@ public class HomeController {
                           @RequestParam Integer year,
                           @RequestParam Integer month,
                           RedirectAttributes redirectAttributes) {
-        memo.setYear(year);
-        memo.setMonth(month);
+        // 년/월은 화면에서 선택한 달이 아니라 실제 메모 날짜 기준으로 설정
+        if (memo.getMemoDate() == null) {
+            memo.setMemoDate(LocalDate.now());
+        }
+        LocalDate memoDate = memo.getMemoDate();
+        memo.setYear(memoDate.getYear());
+        memo.setMonth(memoDate.getMonthValue());
         memoService.saveMemo(memo);
-        redirectAttributes.addAttribute("year", year);
-        redirectAttributes.addAttribute("month", month);
+        // 저장된 달로 이동
+        redirectAttributes.addAttribute("year", memoDate.getYear());
+        redirectAttributes.addAttribute("month", memoDate.getMonthValue());
         return "redirect:/";
     }
 

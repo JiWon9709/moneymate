@@ -422,7 +422,7 @@
                         </div>
                         <div class="form-group">
                             <label>날짜</label>
-                            <input type="date" name="savedDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                            <input type="date" name="savedDate" th:value="${#temporals.format(defaultDate, 'yyyy-MM-dd')}">
                         </div>
                         <button type="submit" class="btn">저축 추가</button>
                     </form>
@@ -487,7 +487,7 @@
                     </div>
                     <div class="form-group">
                         <label>날짜</label>
-                        <input type="date" name="expenseDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                        <input type="date" name="expenseDate" th:value="${#temporals.format(defaultDate, 'yyyy-MM-dd')}">
                     </div>
                     <button type="submit" class="btn">지출 추가</button>
                 </form>
@@ -538,7 +538,7 @@
                     </div>
                     <div class="form-group">
                         <label>날짜</label>
-                        <input type="date" name="memoDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                        <input type="date" name="memoDate" th:value="${#temporals.format(defaultDate, 'yyyy-MM-dd')}">
                     </div>
                     <button type="submit" class="btn">메모 저장</button>
                 </form>
